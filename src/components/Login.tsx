@@ -16,7 +16,8 @@ export default function Login() {
       
       // Mapeamento de erros comuns do Firebase Auth
       if (err.code === 'auth/unauthorized-domain') {
-        setError("O domínio da Vercel não está autorizado no Firebase Console.");
+        const currentDomain = window.location.hostname;
+        setError(`O domínio "${currentDomain}" não está autorizado no Firebase Console (Authentication > Settings > Authorized Domains).`);
       } else if (err.code === 'auth/popup-blocked') {
         setError("O navegador bloqueou o pop-up de login. Por favor, permita pop-ups.");
       } else if (err.code === 'auth/operation-not-allowed') {
