@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  
+  --color-primary: #00f2ff;
+  --color-on-primary: #020408;
+  --color-primary-container: rgba(0, 242, 255, 0.1);
+  --color-on-primary-container: #00f2ff;
+  
+  --color-secondary: #94a3b8;
+  --color-secondary-container: rgba(255, 255, 255, 0.05);
+  --color-on-secondary-container: #e2e8f0;
+  
+  --color-background: #020408;
+  --color-surface: #020408;
+  
+  --color-on-surface: #e2e8f0;
+  --color-on-surface-variant: #94a3b8;
+  
+  --color-error: #f87171;
+  --color-error-container: rgba(248, 113, 113, 0.1);
+  
+  --color-outline: rgba(255, 255, 255, 0.08);
+  --color-outline-variant: rgba(255, 255, 255, 0.12);
+}
+
+@layer base {
+  body {
+    @apply bg-[#020408] text-[#e2e8f0] font-sans antialiased min-h-screen overflow-x-hidden select-none;
+    background: radial-gradient(circle at 50% 0%, #121826 0%, #020408 70%);
+  }
+
+  /* Remove blinking caret from non-input elements */
+  :not(input):not(textarea):not([contenteditable="true"]) {
+    caret-color: transparent;
+  }
+}
+
+@utility glass {
+  @apply bg-white/3 backdrop-blur-2xl border border-white/8 rounded-3xl;
+}
+
+@utility glow-cyan {
+  @apply shadow-[0_0_30px_rgba(0,242,255,0.15)] border-primary/30;
+}
+
+@utility active-glow {
+  @apply text-primary;
+  text-shadow: 0 0 15px rgba(0, 242, 255, 0.6);
+}
+
+@utility apple-card {
+  @apply glass;
+}
+
+@utility hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility ios-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}

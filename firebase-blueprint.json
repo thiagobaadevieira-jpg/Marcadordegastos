@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "User defined expense/income category",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the owner" },
+        "name": { "type": "string", "description": "Category name" }
+      },
+      "required": ["userId", "name"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the owner" },
+        "description": { "type": "string", "description": "Short description" },
+        "amount": { "type": "number", "description": "Transaction amount" },
+        "date": { "type": "string", "format": "date", "description": "Transaction date ISO string" },
+        "category": { "type": "string", "description": "Category name" },
+        "type": { "type": "string", "enum": ["expense", "income"], "description": "Type of transaction" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "description", "amount", "date", "category", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Collection of user categories"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Collection of user transactions"
+    }
+  }
+}
