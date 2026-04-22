@@ -1,8 +1,34 @@
-import React from "react";
-import { LogIn } from "lucide-react";
+import React, { useState } from "react";
+import { LogIn, Loader2, AlertCircle } from "lucide-react";
 import { signInWithGoogle } from "../lib/firebase";
 
 export default function Login() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      console.error("Erro detalhado de login:", err);
+      
+      // Mapeamento de erros comuns do Firebase Auth
+      if (err.code === 'auth/unauthorized-domain') {
+        setError("O domínio da Vercel não está autorizado no Firebase Console.");
+      } else if (err.code === 'auth/popup-blocked') {
+        setError("O navegador bloqueou o pop-up de login. Por favor, permita pop-ups.");
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError("O login com Google não foi ativado no Firebase Console.");
+      } else {
+        setError("Falha ao entrar: " + (err.message || "Erro desconhecido"));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#020408] px-4 relative overflow-hidden">
       {/* Decorative gradients */}
@@ -18,12 +44,24 @@ export default function Login() {
           <p className="text-sm text-secondary font-medium px-4">Sua central imersiva de inteligência financeira e controle de gastos.</p>
         </div>
 
+        {error && (
+          <div className="flex items-center gap-2 p-3 text-[11px] font-bold text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl animate-shake">
+            <AlertCircle size={14} className="shrink-0" />
+            <span className="text-left">{error}</span>
+          </div>
+        )}
+
         <button 
-          onClick={signInWithGoogle}
-          className="w-full flex items-center justify-center gap-3 bg-white text-black h-14 rounded-2xl font-black text-xs tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all glow-cyan"
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-white text-black h-14 rounded-2xl font-black text-xs tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all glow-cyan disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <LogIn size={18} />
-          Entrar com Google
+          {loading ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <LogIn size={18} />
+          )}
+          {loading ? 'Processando...' : 'Entrar com Google'}
         </button>
 
         <p className="text-[10px] text-secondary font-bold uppercase tracking-widest pt-4 opacity-40">
