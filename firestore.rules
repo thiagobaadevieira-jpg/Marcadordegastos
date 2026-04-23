@@ -56,11 +56,29 @@ service cloud.firestore {
         && data.amount is number
         && data.date is string
         && data.category is string
-        && data.type in ['expense', 'income'];
+        && data.type in ['expense', 'income']
+        && (data.createdAt == request.time || data.createdAt == null);
     }
 
     match /transactions/{transactionId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() 
+        && isValidId(transactionId)
+        && isValidTransaction(request.resource.data)
+        && request.resource.data.keys().hasAll(['userId', 'description', 'amount', 'date', 'category', 'type', 'createdAt'])
+        && request.resource.data.keys().size() == 7;
+        
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && isValidTransaction(request.resource.data)
+        && request.resource.data.userId == resource.data.userId
+        && (
+          // Action: Edit fields
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'amount', 'date', 'category', 'type', 'updatedAt'])
+        );
+        
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
   }
 }

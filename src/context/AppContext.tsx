@@ -62,6 +62,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...doc.data()
       })) as CategoryItem[];
       setCategories(cats);
+    }, (error) => {
+      console.error("Categories Subscription Error:", error);
+      if (error.message.includes("index")) {
+        window.alert("O banco de dados precisa de um índice. Verifique o console do desenvolvedor.");
+      }
     });
 
     const qTransactions = query(
@@ -76,6 +81,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...doc.data()
       })) as Transaction[];
       setTransactions(trans);
+    }, (error) => {
+      console.error("Transactions Subscription Error:", error);
+      if (error.message.includes("index")) {
+        window.alert("IMPORTANTE: Clique no link gerado no console para habilitar a listagem de gastos.");
+      }
     });
 
     return () => {
