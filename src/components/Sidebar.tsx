@@ -37,7 +37,7 @@ export default function Sidebar({ activeTab, onTabChange, isOpen, onClose }: Sid
 
       <aside className={`w-[220px] h-full fixed left-0 bg-black/40 backdrop-blur-2xl border-r border-white/5 flex flex-col py-8 z-[60] transition-transform duration-300 transform md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-8 mb-12">
-          <h1 className="text-2xl font-bold tracking-tighter text-white">AETHER<span className="text-primary">.</span></h1>
+          <h1 className="text-2xl font-black italic tracking-tighter text-white">ITALIK<span className="text-primary not-italic">.</span></h1>
         </div>
 
         <nav className="flex-1 space-y-2 px-4 shadow-[inset_0_-20px_20px_-20px_rgba(0,0,0,0.5)]">

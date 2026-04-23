@@ -1,29 +1,42 @@
 import React, { useState } from "react";
-import { LogIn, Loader2, AlertCircle } from "lucide-react";
-import { signInWithGoogle } from "../lib/firebase";
+import { LogIn, Loader2, AlertCircle, Mail, Lock, UserPlus } from "lucide-react";
+import { loginWithEmail, registerWithEmail } from "../lib/firebase";
 
 export default function Login() {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError("Por favor, preencha todos os campos.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      await signInWithGoogle();
-    } catch (err: any) {
-      console.error("Erro detalhado de login:", err);
-      
-      // Mapeamento de erros comuns do Firebase Auth
-      if (err.code === 'auth/unauthorized-domain') {
-        const currentDomain = window.location.hostname;
-        setError(`O domínio "${currentDomain}" não está autorizado no Firebase Console (Authentication > Settings > Authorized Domains).`);
-      } else if (err.code === 'auth/popup-blocked') {
-        setError("O navegador bloqueou o pop-up de login. Por favor, permita pop-ups.");
-      } else if (err.code === 'auth/operation-not-allowed') {
-        setError("O login com Google não foi ativado no Firebase Console.");
+      if (isRegistering) {
+        await registerWithEmail(email, password);
       } else {
-        setError("Falha ao entrar: " + (err.message || "Erro desconhecido"));
+        await loginWithEmail(email, password);
+      }
+    } catch (err: any) {
+      console.error("Erro de autenticação:", err);
+      
+      if (err.code === 'auth/invalid-credential') {
+        setError("E-mail ou senha incorretos.");
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError("Este e-mail já está em uso.");
+      } else if (err.code === 'auth/weak-password') {
+        setError("A senha deve ter pelo menos 6 caracteres.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("E-mail inválido.");
+      } else {
+        setError("Falha na operação: " + (err.message || "Erro desconhecido"));
       }
     } finally {
       setLoading(false);
@@ -39,10 +52,14 @@ export default function Login() {
       <div className="glass max-w-sm w-full p-8 md:p-12 text-center space-y-8 relative z-10 border-white/10 group hover:border-white/20 transition-all duration-500">
         <div className="space-y-3">
           <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 active-glow group-hover:rotate-6 transition-transform duration-500">
-            <h1 className="text-3xl font-black text-white tracking-tighter">A<span className="text-primary">.</span></h1>
+            <h1 className="text-3xl font-black italic text-white tracking-tighter">I<span className="text-primary not-italic">.</span></h1>
           </div>
-          <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight">Bem-vindo ao AETHER</h2>
-          <p className="text-sm text-secondary font-medium px-4">Sua central imersiva de inteligência financeira e controle de gastos.</p>
+          <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight text-center uppercase">
+            {isRegistering ? "Nova Conta" : "BEM-VINDO ITALIK"}
+          </h2>
+          <p className="text-sm text-secondary font-medium px-4">
+            {isRegistering ? "Crie seu acesso exclusivo." : "Sua central de gastos."}
+          </p>
         </div>
 
         {error && (
@@ -52,22 +69,54 @@ export default function Login() {
           </div>
         )}
 
-        <button 
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white text-black h-14 rounded-2xl font-black text-xs tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all glow-cyan disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : (
-            <LogIn size={18} />
-          )}
-          {loading ? 'Processando...' : 'Entrar com Google'}
-        </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2 text-left">
+            <div className="relative group/input">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within/input:text-primary transition-colors" size={16} />
+              <input
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-white placeholder:text-secondary text-sm focus:outline-none focus:border-primary/50 transition-all"
+              />
+            </div>
+            <div className="relative group/input">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within/input:text-primary transition-colors" size={16} />
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-white placeholder:text-secondary text-sm focus:outline-none focus:border-primary/50 transition-all"
+              />
+            </div>
+          </div>
 
-        <p className="text-[10px] text-secondary font-bold uppercase tracking-widest pt-4 opacity-40">
-          Neural Finance Protocol v4.0.1
-        </p>
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 bg-white text-black h-14 rounded-2xl font-black text-xs tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all glow-cyan disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : isRegistering ? (
+              <UserPlus size={18} />
+            ) : (
+              <LogIn size={18} />
+            )}
+            {loading ? 'Processando...' : isRegistering ? 'Criar Conta' : 'Entrar'}
+          </button>
+        </form>
+
+        <div className="pt-2">
+          <button
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="text-[10px] text-secondary font-bold uppercase tracking-widest hover:text-white transition-colors"
+          >
+            {isRegistering ? "Já tenho uma conta" : "Não tem conta? Cadastre-se"}
+          </button>
+        </div>
       </div>
     </div>
   );
