@@ -1,10 +1,9 @@
-const CACHE_NAME = 'italik-finance-v2';
+const CACHE_NAME = 'italik-finance-force-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon.svg',
-  '/src/main.tsx'
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -22,6 +21,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Deletando cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })

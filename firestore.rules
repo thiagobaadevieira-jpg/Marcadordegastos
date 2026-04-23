@@ -32,51 +32,39 @@ service cloud.firestore {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       allow create: if isSignedIn() 
-        && isValidId(categoryId)
-        && isValidCategory(request.resource.data)
-        && request.resource.data.keys().hasAll(['userId', 'name'])
-        && request.resource.data.keys().size() == 2;
+        && request.resource.data.userId == request.auth.uid
+        && isValidCategory(request.resource.data);
         
       allow update: if isSignedIn()
         && resource.data.userId == request.auth.uid
-        && isValidCategory(request.resource.data)
-        && request.resource.data.userId == resource.data.userId
-        && request.resource.data.keys().hasAll(['userId', 'name'])
-        && request.resource.data.keys().size() == 2;
+        && request.resource.data.userId == request.auth.uid
+        && isValidCategory(request.resource.data);
         
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     // --- Transaction Validation ---
     function isValidTransaction(data) {
-      return data.userId is string 
-        && data.userId == request.auth.uid
+      return data.userId == request.auth.uid
         && data.description is string 
-        && data.description.size() <= 128
+        && data.description.size() <= 200
         && data.amount is number
         && data.date is string
         && data.category is string
-        && data.type in ['expense', 'income']
-        && (data.createdAt == request.time || data.createdAt == null);
+        && data.type in ['expense', 'income'];
     }
 
     match /transactions/{transactionId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       allow create: if isSignedIn() 
-        && isValidId(transactionId)
-        && isValidTransaction(request.resource.data)
-        && request.resource.data.keys().hasAll(['userId', 'description', 'amount', 'date', 'category', 'type', 'createdAt'])
-        && request.resource.data.keys().size() == 7;
+        && request.resource.data.userId == request.auth.uid
+        && isValidTransaction(request.resource.data);
         
       allow update: if isSignedIn()
         && resource.data.userId == request.auth.uid
-        && isValidTransaction(request.resource.data)
-        && request.resource.data.userId == resource.data.userId
-        && (
-          // Action: Edit fields
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'amount', 'date', 'category', 'type', 'updatedAt'])
-        );
+        && request.resource.data.userId == request.auth.uid
+        && isValidTransaction(request.resource.data);
         
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }

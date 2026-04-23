@@ -5,7 +5,8 @@ import {
   Tag, 
   ShoppingBag,
   Camera,
-  Trash2
+  Trash2,
+  Upload
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Category, CategoryItem, Transaction } from "../types";
@@ -27,7 +28,8 @@ export default function ExpenseModal({ isOpen, onClose, categories, initialData 
   const [category, setCategory] = React.useState<Category>("");
   const [receipt, setReceipt] = React.useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const cameraInputRef = React.useRef<HTMLInputElement>(null);
+  const galleryInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -200,28 +202,45 @@ export default function ExpenseModal({ isOpen, onClose, categories, initialData 
                   <label className="block text-[10px] font-black text-secondary uppercase tracking-[0.2em] mb-2 md:mb-3 ml-1">Anexar Comprovante</label>
                   <input 
                     type="file"
-                    ref={fileInputRef}
+                    ref={cameraInputRef}
                     onChange={handleFileChange}
                     accept="image/*"
                     capture="environment"
                     className="hidden"
                   />
+                  <input 
+                    type="file"
+                    ref={galleryInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
                   {!receipt ? (
-                    <button 
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full h-24 md:h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-all"
-                    >
-                      <Camera size={24} />
-                      <span className="text-[9px] font-black uppercase tracking-widest">Tirar Foto ou Galeria</span>
-                    </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button 
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="h-24 md:h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-all"
+                      >
+                        <Camera size={24} />
+                        <span className="text-[9px] font-black uppercase tracking-widest">Tirar Foto</span>
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => galleryInputRef.current?.click()}
+                        className="h-24 md:h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-all"
+                      >
+                        <Upload size={24} />
+                        <span className="text-[9px] font-black uppercase tracking-widest">Upload</span>
+                      </button>
+                    </div>
                   ) : (
                     <div className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-video">
                       <img src={receipt} alt="Comprovante" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                         <button 
                           type="button"
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick={() => cameraInputRef.current?.click()}
                           className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-primary/20 hover:text-primary transition-all"
                         >
                           <Camera size={18} />
